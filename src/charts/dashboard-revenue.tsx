@@ -139,7 +139,7 @@ export function DashboardRevenue() {
       </CardHeader>
       <CardContent className="flex flex-col h-[calc(100%-80px)]">
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-full max-w-xs h-64">
+          <div className="w-full max-w-xs h-64 ">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Tooltip content={renderTooltipContent} />
@@ -169,10 +169,13 @@ export function DashboardRevenue() {
                     textAnchor="middle"
                     dominantBaseline="middle"
                     className="text-2xl font-bold transition-all duration-300"
-                    style={{
-                      transform: isHovered ? 'scale(1.05)' : 'scale(1)'
-                    }}
+                    style={
+                      localStorage.getItem("vite-ui-theme") === "dark"
+                        ? { fill: "#fff" }
+                        : { fill: "#000" }
+                    }
                   >
+                    
                     {formatIndianCurrency(currentRevenue)}
                   </text>
                 </Pie>

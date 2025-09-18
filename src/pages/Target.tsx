@@ -14,14 +14,13 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
+import {
   SumOfBilling, 
   FillRate, 
   LineFillRate, 
   NonZeroFillRate, 
   TotalOrders,
-  getAllMetrics, 
-  SumOfGrnBillValue
+  getAllMetrics
 } from '@/lib/calculation';
 
 type Status = 'todo' | 'in_progress' | 'completed';
@@ -73,13 +72,13 @@ const updateTargetStatus = (currentValue: number, targetValue: number): Status =
   return 'todo';
 };
 
-const defaultTargets: BusinessTarget[] = [
+const createDefaultTargets = (): BusinessTarget[] => [
   {
     id: '1',
     title: 'Monthly Revenue Target',
     description: 'Achieve monthly revenue goal',
     category: 'revenue',
-    currentValue: Math.round(SumOfGrnBillValue()),
+    currentValue: 0, // Will be updated in component
     targetValue: 100000,
     progress: 0,
     deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -94,7 +93,7 @@ const defaultTargets: BusinessTarget[] = [
     title: 'Fill Rate Improvement',
     description: 'Improve overall fill rate performance',
     category: 'fillrate',
-    currentValue: Math.round(FillRate()),
+    currentValue: 0, // Will be updated in component
     targetValue: 85,
     progress: 0,
     deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -109,7 +108,7 @@ const defaultTargets: BusinessTarget[] = [
     title: 'Order Volume Growth',
     description: 'Increase total order count',
     category: 'orders',
-    currentValue: Math.round(TotalOrders()),
+    currentValue: 0, // Will be updated in component
     targetValue: 500,
     progress: 0,
     deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -120,27 +119,6 @@ const defaultTargets: BusinessTarget[] = [
     isRealTime: true
   }
 ];
-
-const loadTargetsFromStorage = (): BusinessTarget[] => {
-  const stored = localStorage.getItem('business-targets');
-  if (stored) {
-    const parsedTargets = JSON.parse(stored);
-    return parsedTargets.map((target: BusinessTarget) => {
-      if (target.isRealTime) {
-        const currentValue = getRealTimeValue(target.category);
-        const progress = target.targetValue > 0 ? Math.min(100, Math.round((currentValue / target.targetValue) * 100)) : 0;
-        const status = updateTargetStatus(currentValue, target.targetValue);
-        return { ...target, currentValue, progress, status };
-      }
-      return target;
-    });
-  }
-  return defaultTargets.map(target => {
-    const progress = target.targetValue > 0 ? Math.min(100, Math.round((target.currentValue / target.targetValue) * 100)) : 0;
-    const status = updateTargetStatus(target.currentValue, target.targetValue);
-    return { ...target, progress, status };
-  });
-};
 
 const saveTargetsToStorage = (targets: BusinessTarget[]) => {
   localStorage.setItem('business-targets', JSON.stringify(targets));
@@ -289,7 +267,7 @@ function AddEditTargetDialog({
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     // Always round to integer - no floats allowed
-    let numValue = Math.round(parseFloat(value)) || 0;
+    const numValue = Math.round(parseFloat(value)) || 0;
     
     setFormData(prev => {
       const currentValue = name === 'currentValue' ? numValue : prev.currentValue;
@@ -410,7 +388,7 @@ function AddEditTargetDialog({
               </Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) => setFormData({...formData, status: value as any})}
+                onValueChange={(value) => setFormData({...formData, status: value as Status})}
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select status" />
@@ -454,9 +432,41 @@ const Targets = () => {
   const [editingTarget, setEditingTarget] = useState<BusinessTarget | null>(null);
 
   useEffect(() => {
-    const initialTargets = loadTargetsFromStorage();
-    setTargets(initialTargets);
-    saveTargetsToStorage(initialTargets);
+    // Initialize targets with proper current values
+    const initializeTargets = () => {
+      const stored = localStorage.getItem('business-targets');
+      let initialTargets: BusinessTarget[];
+      
+      if (stored) {
+        const parsedTargets = JSON.parse(stored);
+        initialTargets = parsedTargets.map((target: BusinessTarget) => {
+          if (target.isRealTime) {
+            const currentValue = getRealTimeValue(target.category);
+            const progress = target.targetValue > 0 ? Math.min(100, Math.round((currentValue / target.targetValue) * 100)) : 0;
+            const status = updateTargetStatus(currentValue, target.targetValue);
+            return { ...target, currentValue, progress, status };
+          }
+          return target;
+        });
+      } else {
+        // Create default targets with current values
+        const defaultTargets = createDefaultTargets();
+        initialTargets = defaultTargets.map(target => {
+          if (target.isRealTime) {
+            const currentValue = getRealTimeValue(target.category);
+            const progress = target.targetValue > 0 ? Math.min(100, Math.round((currentValue / target.targetValue) * 100)) : 0;
+            const status = updateTargetStatus(currentValue, target.targetValue);
+            return { ...target, currentValue, progress, status };
+          }
+          return target;
+        });
+      }
+      
+      setTargets(initialTargets);
+      saveTargetsToStorage(initialTargets);
+    };
+    
+    initializeTargets();
   }, []);
 
   // Update targets with real-time data

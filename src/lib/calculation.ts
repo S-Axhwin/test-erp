@@ -127,8 +127,10 @@ export const useUpdateUniversalPO = () => {
   
   const updateUniversalPO = () => {
     const mappedData = Mapping();
-    setUniversalPo(mappedData);
-    return mappedData;
+    if (mappedData) {
+      setUniversalPo(mappedData);
+    }
+    return mappedData || [];
   };
   
   return updateUniversalPO;
