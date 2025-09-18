@@ -16,6 +16,7 @@ type PreviewData = {
   "SkuCode": string;
   "SkuDescription": string;
   "PoLineValueWithTax": string;
+  "Status": string;
 };
 
 type UploadStatus = {
@@ -32,6 +33,7 @@ type ParsedPO = {
   skuCode: string;
   skuDescription: string;
   poLineValueWithTax: number;
+  status: 'completed' | 'cancelled' | 'confirmed' | 'expired';
 };
 
 type FileRow = {
@@ -152,6 +154,10 @@ const Upload = () => {
               h === 'polinevaluewithtax' || h.includes('linevalue') && h.includes('tax')
             );
             
+            const statusIndex = normalizedHeaders.findIndex(h => 
+              h === 'status' || h.includes('status')
+            );
+            
             console.log('Header indices:', {
               poNumberIndex,
               vendorNameIndex,
@@ -160,7 +166,8 @@ const Upload = () => {
               poAmountIndex,
               skuCodeIndex,
               skuDescriptionIndex,
-              poLineValueWithTaxIndex
+              poLineValueWithTaxIndex,
+              statusIndex
             }); // Debug log
             
             // Parse CSV rows
@@ -179,6 +186,7 @@ const Upload = () => {
                   "SkuCode": skuCodeIndex !== -1 && values[skuCodeIndex] ? values[skuCodeIndex].trim() : '',
                   "SkuDescription": skuDescriptionIndex !== -1 && values[skuDescriptionIndex] ? values[skuDescriptionIndex].trim() : '',
                   "PoLineValueWithTax": poLineValueWithTaxIndex !== -1 && values[poLineValueWithTaxIndex] ? values[poLineValueWithTaxIndex].trim() : '',
+                  "Status": statusIndex !== -1 && values[statusIndex] ? values[statusIndex].trim() : '',
                 };
                 
                 console.log('Mapped object:', mappedObj); // Debug log
@@ -261,6 +269,10 @@ const Upload = () => {
                 (normalizedKeys[index].includes('linevalue') && normalizedKeys[index].includes('tax'))
               );
               
+              const statusKey = keys.find((_, index) => 
+                normalizedKeys[index] === 'status' || normalizedKeys[index].includes('status')
+              );
+              
               const result = {
                 "PO Number": String(row[poNumberKey] || ''),
                 "VendorName": String(row[vendorNameKey] || ''),
@@ -270,6 +282,7 @@ const Upload = () => {
                 "SkuCode": String(row[skuCodeKey] || ''),
                 "SkuDescription": String(row[skuDescriptionKey] || ''),
                 "PoLineValueWithTax": String(row[poLineValueWithTaxKey] || ''),
+                "Status": String(row[statusKey] || ''),
               };
               
               console.log('Mapped Excel row:', result); // Debug log
@@ -363,6 +376,21 @@ const Upload = () => {
       // Convert parsed data to PO format
       const poData: ParsedPO[] = parsedData.map((row, index) => {
         console.log(`Processing row ${index}:`, row); // Debug log
+        
+        // Parse and validate status field
+        const rawStatus = row["Status"]?.toString().trim().toLowerCase() || '';
+        let status: 'completed' | 'cancelled' | 'confirmed' | 'expired' = 'completed';
+        
+        if (['completed', 'cancelled', 'confirmed', 'expired'].includes(rawStatus)) {
+          status = rawStatus as 'completed' | 'cancelled' | 'confirmed' | 'expired';
+        } else if (rawStatus === 'canceled') {
+          // Handle alternative spelling
+          status = 'cancelled';
+        } else if (rawStatus === 'open') {
+          // Map old 'open' status to 'confirmed'
+          status = 'confirmed';
+        }
+        
         return {
           poNumber: row["PO Number"]?.toString().trim() || '',
           vendor: row["VendorName"]?.toString().trim() || '',
@@ -372,7 +400,7 @@ const Upload = () => {
           skuCode: row["SkuCode"]?.toString().trim() || '',
           skuDescription: row["SkuDescription"]?.toString().trim() || '',
           poLineValueWithTax: parseFloat(row["PoLineValueWithTax"]?.toString() || '0'),
-          status: 'completed' as const,
+          status: status,
         };
       }).filter(po => {
         const isValid = po.poNumber && po.vendor && po.poNumber.trim() !== '' && po.vendor.trim() !== '';
@@ -527,7 +555,7 @@ const Upload = () => {
         <div className="flex flex-wrap gap-2 ml-auto">
           <Button 
             onClick={() => {
-              const csvContent = `PO Number,VendorName,OrderedQty,ReceivedQty,PoAmount,SkuCode,SkuDescription\nPO-001,Sample Vendor A,100,95,1500.00,SKU-001,Sample Product A\nPO-002,Sample Vendor B,200,200,3200.00,SKU-002,Sample Product B\nPO-003,Sample Vendor C,50,45,750.50,SKU-003,Sample Product C`;
+              const csvContent = `PO Number,VendorName,OrderedQty,ReceivedQty,PoAmount,SkuCode,SkuDescription,Status\nPO-001,Sample Vendor A,100,95,1500.00,SKU-001,Sample Product A,completed\nPO-002,Sample Vendor B,200,200,3200.00,SKU-002,Sample Product B,confirmed\nPO-003,Sample Vendor C,50,45,750.50,SKU-003,Sample Product C,expired`;
               const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
               const link = document.createElement('a');
               const url = URL.createObjectURL(blob);
@@ -545,7 +573,7 @@ const Upload = () => {
           </Button>
           <Button 
             onClick={() => {
-              const csvContent = `PO Number,VendorName,OrderedQty,ReceivedQty,PoAmount,SkuCode,SkuDescription\nOPEN-001,Open Vendor A,150,120,2200.00,OPEN-SKU-001,Open Product A\nOPEN-002,Open Vendor B,300,250,4800.00,OPEN-SKU-002,Open Product B\nOPEN-003,Open Vendor C,75,60,1100.25,OPEN-SKU-003,Open Product C`;
+              const csvContent = `PO Number,VendorName,OrderedQty,ReceivedQty,PoAmount,SkuCode,SkuDescription,Status\nOPEN-001,Open Vendor A,150,120,2200.00,OPEN-SKU-001,Open Product A,confirmed\nOPEN-002,Open Vendor B,300,250,4800.00,OPEN-SKU-002,Open Product B,cancelled\nOPEN-003,Open Vendor C,75,60,1100.25,OPEN-SKU-003,Open Product C,completed`;
               const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
               const link = document.createElement('a');
               const url = URL.createObjectURL(blob);
@@ -594,7 +622,7 @@ const Upload = () => {
               skuCode: "574001",
               skuDescription: "Open Product",
               poLineValueWithTax: 3520.00,
-              status: 'open'
+              status: 'confirmed'
             });
           }}
         >
@@ -635,7 +663,7 @@ const Upload = () => {
         <Card>
           <CardHeader>
             <CardTitle>Upload File POs</CardTitle>
-            <CardDescription>Upload files with columns: PO Number, VendorName, OrderedQty, ReceivedQty, PoAmount, SkuCode, SkuDescription</CardDescription>
+            <CardDescription>Upload files with columns: PO Number, VendorName, OrderedQty, ReceivedQty, PoAmount, SkuCode, SkuDescription, Status (completed/cancelled/confirmed/expired)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div 
@@ -693,6 +721,7 @@ const Upload = () => {
                             <TableHead>Amount</TableHead>
                             <TableHead>SKU Code</TableHead>
                             <TableHead>SKU Description</TableHead>
+                            <TableHead>Status</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -705,6 +734,7 @@ const Upload = () => {
                               <TableCell>{row["PoAmount"]}</TableCell>
                               <TableCell>{row["SkuCode"]}</TableCell>
                               <TableCell>{row["SkuDescription"]}</TableCell>
+                              <TableCell>{row["Status"]}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -750,7 +780,7 @@ const Upload = () => {
         <Card>
           <CardHeader>
             <CardTitle>Upload File Open POs</CardTitle>
-            <CardDescription>Upload files with columns: PO Number, VendorName, OrderedQty, ReceivedQty, PoAmount, SkuCode, SkuDescription</CardDescription>
+            <CardDescription>Upload files with columns: PO Number, VendorName, OrderedQty, ReceivedQty, PoAmount, SkuCode, SkuDescription, Status (completed/cancelled/confirmed/expired)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div 
@@ -808,6 +838,7 @@ const Upload = () => {
                             <TableHead>Amount</TableHead>
                             <TableHead>SKU Code</TableHead>
                             <TableHead>SKU Description</TableHead>
+                            <TableHead>Status</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -820,6 +851,7 @@ const Upload = () => {
                               <TableCell>{row["PoAmount"]}</TableCell>
                               <TableCell>{row["SkuCode"]}</TableCell>
                               <TableCell>{row["SkuDescription"]}</TableCell>
+                              <TableCell>{row["Status"]}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

@@ -8,15 +8,26 @@ const TestUpload = () => {
     vendor: "Test Vendor",
     orderedQty: 100,
     receivedQty: 95,
-    poAmount: 1500.00
+    poAmount: 1500.00,
+    status: "completed" as const
   });
 
   const handleAddPO = () => {
-    addPO(testData);
+    addPO({
+      ...testData,
+      skuCode: "TEST-SKU-001",
+      skuDescription: "Test Product Description",
+      poLineValueWithTax: testData.poAmount * 1.1
+    });
   };
 
   const handleAddOpenPO = () => {
-    addOpenPO(testData);
+    addOpenPO({
+      ...testData,
+      skuCode: "TEST-SKU-002", 
+      skuDescription: "Test Open Product Description",
+      poLineValueWithTax: testData.poAmount * 1.1
+    });
   };
 
   return (
@@ -59,6 +70,16 @@ const TestUpload = () => {
           onChange={(e) => setTestData({...testData, poAmount: parseFloat(e.target.value) || 0})}
           className="border p-2 rounded"
         />
+        <select 
+          value={testData.status}
+          onChange={(e) => setTestData({...testData, status: e.target.value as "completed" | "cancelled" | "confirmed" | "expired"})}
+          className="border p-2 rounded"
+        >
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="expired">Expired</option>
+        </select>
       </div>
       
       <div className="flex gap-2">

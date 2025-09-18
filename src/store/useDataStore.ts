@@ -10,7 +10,7 @@ export type PO = {
   skuCode: string;
   skuDescription: string;
   poLineValueWithTax: number;
-  status: 'completed' | 'confirmed' | 'expired' | 'open';
+  status: 'completed' | 'cancelled' | 'confirmed' | 'expired';
 };
 
 export type uni = {
@@ -28,7 +28,7 @@ export type uni = {
   skuDescription: string;
   poLineValueWithTax: number;
   grnBillValue: number;
-  status: 'completed' | 'confirmed' | 'expired' | 'open';
+  status: 'completed' | 'cancelled' | 'confirmed' | 'expired';
 }
 
 export type LandingRate = {
