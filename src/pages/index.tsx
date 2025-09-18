@@ -11,6 +11,7 @@ import { FillRate, LineFillRate, NonZeroFillRate, POBillingValue, } from "@/lib/
 import { DashboardRevenue } from "@/charts/dashboard-revenue";
 import { useDataStore } from "@/store/useDataStore";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export const description = "A radial chart with text"
 
@@ -88,13 +89,15 @@ export default function DealersDashboard() {
               <CardContent className="h-full p-6 flex flex-col items-center justify-center text-center">
                 <h3 className="text-xl font-bold mb-2 text-purple-600">Need Assistance?</h3>
                 <p className="mb-4 text-foreground">Get actionable insights and recommendations.</p>
+                <Link to="/ai-assistant">
                 <Button 
                   variant="secondary" 
                   className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                   onClick={() => console.log("Chat with AI clicked")}
-                >
+                  >
                   Keep Chat with Me
                 </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>

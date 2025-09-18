@@ -20,16 +20,6 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { 
-  SumOfClosedPOBillingValue, 
-  SumOfClosedPOCases, 
-  SumOfGrnCases, 
-  SumOfOpenPOBillingValue, 
-  SumOfPOBillingValue, 
-  SumOfPOCases,
-  SumOfGrnBillValue,
-  Mapping
-} from '@/lib/calculation';
 
 interface VendorPerformance {
   vendor: string;
@@ -47,7 +37,16 @@ interface MappedPO {
   poLineValueWithTax: number;
   grnBillValue: number;
   receivedQty: number;
-  [key: string]: any;
+  poNumber: string;
+  orderedQty: number;
+  poAmount: number;
+  skuCode: string;
+  units: number;
+  cases: number;
+  grncase: number;
+  mrp: number;
+  landingRate: number;
+  skuDescription: string;
 }
 
 interface RealTimeData {
@@ -55,6 +54,16 @@ interface RealTimeData {
   billingData: Array<{ name: string; value: number; color: string }>;
   vendorPerformance: VendorPerformance[];
   mappedData: MappedPO[];
+  metrics: {
+    totalPOCases: number;
+    closedPOCases: number;
+    grnCases: number;
+    openPOCases: number;
+    poBillingValue: number;
+    closedPOValue: number;
+    grnBillValue: number;
+    openPOValue: number;
+  };
 }
 
 // Mock data - replace with real data from your API
@@ -74,14 +83,51 @@ const CaseAnalytics = () => {
   // Calculate real-time metrics
   useEffect(() => {
     const calculateMetrics = () => {
-      const mappedData = Mapping();
+      // Get data directly from the store within React component
+      const allPos = pos || [];
+      const allOpenPos = openpos || [];
+      
+      // Create mapped data within component (avoiding hook issues)
+      const mappedData = allPos.map(po => ({
+        poNumber: po.poNumber,
+        vendor: po.vendor || 'Unknown',
+        orderedQty: po.orderedQty,
+        receivedQty: po.receivedQty,
+        poAmount: po.poAmount,
+        skuCode: po.skuCode,
+        units: 1,
+        cases: po.orderedQty,
+        grncase: po.receivedQty,
+        mrp: 0,
+        landingRate: 0,
+        skuDescription: po.skuDescription,
+        poLineValueWithTax: po.poLineValueWithTax,
+        grnBillValue: po.receivedQty * (po.poAmount || 0),
+        status: po.status
+      }));
+      
+      // Calculate metrics directly without calling external functions
+      const totalPOCases = allPos.length;
+      const closedPOCases = allPos.filter(po => po.status === 'completed').length;
+      const grnCases = allPos.filter(po => po.receivedQty > 0 && po.status === 'completed').length;
+      const openPOCases = allPos.filter(po => po.status === 'open').length + allOpenPos.length;
+      
+      // Calculate billing values directly
+      const poBillingValue = allPos
+        .filter(po => ['completed', 'confirmed', 'expired'].includes(po.status || 'open'))
+        .reduce((sum, po) => sum + (po.poLineValueWithTax || 0), 0);
+      
+      const closedPOValue = allPos
+        .filter(po => po.status === 'completed')
+        .reduce((sum, po) => sum + (po.poLineValueWithTax || 0), 0);
+      
+      const grnBillValue = allPos
+        .filter(po => po.receivedQty > 0 && po.status === 'completed')
+        .reduce((sum, po) => sum + (po.receivedQty * (po.poAmount || 0)), 0);
+      
+      const openPOValue = allOpenPos.reduce((sum, po) => sum + (po.poLineValueWithTax || 0), 0);
       
       // Case distribution data
-      const totalPOCases = SumOfPOCases();
-      const closedPOCases = SumOfClosedPOCases();
-      const grnCases = SumOfGrnCases();
-      const openPOCases = (pos?.filter(po => po.status === 'open').length || 0) + (openpos?.length || 0);
-      
       const caseDistribution = [
         { name: 'Total PO', value: totalPOCases, color: '#8b5cf6' },
         { name: 'Closed', value: closedPOCases, color: '#10b981' },
@@ -91,20 +137,30 @@ const CaseAnalytics = () => {
       
       // Billing values data
       const billingData = [
-        { name: 'PO Billing', value: SumOfPOBillingValue(), color: '#8b5cf6' },
-        { name: 'Closed PO', value: SumOfClosedPOBillingValue(), color: '#10b981' },
-        { name: 'GRN Billing', value: SumOfGrnBillValue(), color: '#f59e0b' },
-        { name: 'Open PO', value: SumOfOpenPOBillingValue(), color: '#ef4444' }
+        { name: 'PO Billing', value: poBillingValue, color: '#8b5cf6' },
+        { name: 'Closed PO', value: closedPOValue, color: '#10b981' },
+        { name: 'GRN Billing', value: grnBillValue, color: '#f59e0b' },
+        { name: 'Open PO', value: openPOValue, color: '#ef4444' }
       ];
       
       // Vendor performance from mapped data
-      const vendorPerformance = mappedData ? getVendorPerformance(mappedData) : [];
+      const vendorPerformance = getVendorPerformance(mappedData);
       
       setRealTimeData({
         caseDistribution,
         billingData,
         vendorPerformance,
-        mappedData: mappedData || []
+        mappedData,
+        metrics: {
+          totalPOCases,
+          closedPOCases,
+          grnCases,
+          openPOCases,
+          poBillingValue,
+          closedPOValue,
+          grnBillValue,
+          openPOValue
+        }
       });
     };
     
@@ -153,16 +209,16 @@ const CaseAnalytics = () => {
   };
   
   // Update KPI data with real values
-  const kpiData = [
-    { id: 1, title: 'Sum of PO Cases', value: SumOfPOCases().toLocaleString(), change: '+12.5%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 2, title: 'Closed PO Cases', value: SumOfClosedPOCases().toLocaleString(), change: '+8.2%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 3, title: 'GRN Cases', value: SumOfGrnCases().toLocaleString(), change: '+5.7%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 4, title: 'Open PO Cases', value: ((pos?.filter(po => po.status === 'open').length || 0) + (openpos?.length || 0)).toLocaleString(), change: '+5.7%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
-    { id: 5, title: 'PO Billing Value', value: formatCurrency(SumOfPOBillingValue()), change: '+15.3%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 6, title: 'Closed PO Value', value: formatCurrency(SumOfClosedPOBillingValue()), change: '+9.8%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 7, title: 'GRN Billing Values', value: formatCurrency(SumOfGrnBillValue()), change: '+7.1%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 8, title: 'Open PO Value', value: formatCurrency(SumOfOpenPOBillingValue()), change: '-3.2%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
-  ];
+  const kpiData = realTimeData ? [
+    { id: 1, title: 'Sum of PO Cases', value: realTimeData.metrics.totalPOCases.toLocaleString(), change: '+12.5%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 2, title: 'Closed PO Cases', value: realTimeData.metrics.closedPOCases.toLocaleString(), change: '+8.2%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 3, title: 'GRN Cases', value: realTimeData.metrics.grnCases.toLocaleString(), change: '+5.7%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 4, title: 'Open PO Cases', value: realTimeData.metrics.openPOCases.toLocaleString(), change: '+5.7%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
+    { id: 5, title: 'PO Billing Value', value: formatCurrency(realTimeData.metrics.poBillingValue), change: '+15.3%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 6, title: 'Closed PO Value', value: formatCurrency(realTimeData.metrics.closedPOValue), change: '+9.8%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 7, title: 'GRN Billing Values', value: formatCurrency(realTimeData.metrics.grnBillValue), change: '+7.1%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 8, title: 'Open PO Value', value: formatCurrency(realTimeData.metrics.openPOValue), change: '-3.2%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
+  ] : [];
 
   return (
     <div className="space-y-6 p-6">
@@ -349,13 +405,7 @@ const CaseAnalytics = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Data Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Vendor Case Details</CardTitle>
-        </CardHeader>
-        
-      </Card>
+      
     </div>
   );
 };
