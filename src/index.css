@@ -72,11 +72,11 @@
   --orange: 20 95% 55%;
     --orange-foreground: 0 0% 100%;
     --orange-muted: 20 95% 95%;
-    
+
     --purple: 281 58% 40%;
     --purple-foreground: 0 0% 100%;
     --purple-muted: 281 58% 95%;
-    
+
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
     --success-muted: 142 76% 95%;
@@ -86,16 +86,15 @@
   --chart-muted: 220 15% 85%;
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    
+
     --gradient-primary: linear-gradient(135deg, hsl(240 65% 60%), hsl(240 65% 70%));
     --gradient-orange: linear-gradient(135deg, hsl(20 95% 55%), hsl(20 95% 65%));
     --gradient-purple: linear-gradient(135deg, hsl(281 58% 40%), hsl(281 58% 50%));
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 15% 98%));
     --gradient-subtle: linear-gradient(180deg, hsl(220 15% 98%), hsl(220 15% 96%));
-    
 
     /* complte ai */
-    
+
   --sidebar-foreground: oklch(0.141 0.005 285.823);
   --sidebar-primary: oklch(0.546 0.245 262.881);
   --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
@@ -139,9 +138,6 @@
   --sidebar-ring: oklch(0.488 0.243 264.376);
 }
 
-
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -151,25 +147,24 @@
   }
 }
 
-
 @layer components {
   /* Dashboard Cards */
   .dashboard-card {
     @apply bg-card border border-border rounded-lg shadow-[var(--shadow-card)] 
            hover:shadow-[var(--shadow-hover)] transition-all duration-300;
   }
-  
+
   .highlight-card {
     @apply bg-card border border-border rounded-lg shadow-[var(--shadow-card)] 
            hover:shadow-[var(--shadow-hover)] transition-all duration-300 p-6 relative overflow-hidden;
   }
-  
+
   /* Chart Containers */
   .chart-container {
     @apply bg-card border border-border rounded-lg shadow-[var(--shadow-card)] 
            hover:shadow-[var(--shadow-hover)] transition-all duration-300 p-6;
   }
-  
+
   /* Platform Cards */
   .platform-card {
     @apply bg-card border border-border rounded-lg shadow-[var(--shadow-card)] 

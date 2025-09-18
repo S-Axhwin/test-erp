@@ -17,6 +17,7 @@ import Conversation from "./pages/Conversation"
 import SmartChat from "./pages/SmartChat"
 import CaseAnalytics from "./pages/CaseAnalytics"
 import LandingRate from "./pages/LandingRate"
+import Sales from "./pages/Sales"
 
 export default function Page() {
   return (
@@ -33,6 +34,7 @@ export default function Page() {
                 <Route path="/ai-chatbot" element={<AIChatbot />} />
                 <Route path="/ai-chat" element={<AiChatPage />} />
                 <Route path="/smart-chat" element={<SmartChat />} />
+                <Route path="/sales-analytics" element={<Sales />}/>
                 <Route path="/conversation" element={<Conversation />} />
                 <Route path="/vendors" element={<VendorAnalytics />} />
                 <Route path="/ai-insights" element={<AIInsights />} />
