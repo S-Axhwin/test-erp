@@ -101,7 +101,7 @@ export default function DealersDashboard() {
         </div>
 
         {/* Right Column - Analytics */}
-        <div className="xl:col-span-2 flex flex-col h-[calc(100vh-2rem)] gap-4 py-4">
+        <div className="xl:col-span-2 flex flex-col h-fit gap-4 py-4">
           <div className="h-[60%] min-h-0 mb-6">
             <UtilizationChart />
           </div>
