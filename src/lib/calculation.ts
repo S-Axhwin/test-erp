@@ -41,9 +41,9 @@ export const LineFillRate = (): number => {
   const { pos } = getDataStore();
   
   if (!pos || !Array.isArray(pos) || pos.length === 0) return 0;
-  
-  const perfectLines = pos.filter((po: PO) => getOrderedQty(po) === getReceivedQty(po)).length;
-  const lineFillRate = (perfectLines * 100) / pos.length;
+  const completedPos = pos.filter((po: PO) => po.status=="completed");
+  const perfectLines = completedPos.filter((po: PO) => getOrderedQty(po) === getReceivedQty(po)).length;
+  const lineFillRate = (perfectLines * 100) / completedPos.length;
   return parseFloat(lineFillRate.toFixed(2));
 };
 
@@ -75,9 +75,14 @@ export const NonZeroFillRate = (): number => {
   const { pos } = getDataStore();
   
   if (!pos || !Array.isArray(pos) || pos.length === 0) return 0;
-  
-  const nonZeroLines = pos.filter((po: PO) => getReceivedQty(po) > 0).length;
-  const nzfr = (nonZeroLines * 100) / pos.length;
+
+  const updated = pos.filter((po) => {
+    return po.status=="completed"
+  })
+
+  const nonZeroLines = updated.filter((po: PO) => getReceivedQty(po) > 0).length;
+  console.log(nonZeroLines);
+  const nzfr = (nonZeroLines * 100) / updated.length;
   return parseFloat(nzfr.toFixed(2));
 };
 
