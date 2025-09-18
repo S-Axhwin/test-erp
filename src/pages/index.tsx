@@ -54,7 +54,7 @@ export default function DealersDashboard() {
     <div className="px-6 space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Column - Cards */}
-        <div className="xl:col-span-1 flex flex-col h-[calc(100vh-2rem)] gap-4 py-4">
+        <div className="xl:col-span-1 flex flex-col h-fit gap-4 py-4">
           {/* Welcome Card - 1 part */}
           <div className="h-1/4">
             <Card className="h-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">

@@ -245,7 +245,7 @@ export const POBillingValue = () => {
 
 export const OpenValuesDatas = () => {
   const {openpos} = useDataStore();
-  console.log("open po values", openpos.reduce((acc, cur) => acc + (cur.poLineValueWithTax || 0), 0));
+  // console.log("open po values", openpos.reduce((acc, cur) => acc + (cur.poLineValueWithTax || 0), 0));
   
   return {amt: openpos.reduce((acc, cur) => acc + (cur.poLineValueWithTax || 0), 0)}
 }
