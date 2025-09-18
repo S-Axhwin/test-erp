@@ -7,7 +7,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FillRate, LineFillRate, NonZeroFillRate, POBillingValue, } from "@/lib/calculation"
+import { FillRate, LineFillRate, NonZeroFillRate, POBillingValue, UnitReceiptFillRate, } from "@/lib/calculation"
 import { DashboardRevenue } from "@/charts/dashboard-revenue";
 import { useDataStore } from "@/store/useDataStore";
 import { useEffect } from "react";
@@ -114,7 +114,7 @@ export default function DealersDashboard() {
             {/* Dealer Profiles */}
             <MetricCard
               title="Unit Fill Rate"
-              value={Math.round(FillRate()).toString()+"%"}
+              value={Math.round(UnitReceiptFillRate()).toString()+"%"}
               subtitle="7 platforms avg"
               trend={{ value: 12, isPositive: true }}
               icon={<Users className="h-4 w-4" />}

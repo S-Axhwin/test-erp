@@ -53,10 +53,18 @@ export const UnitReceiptFillRate = (): number => {
   
   if (!pos || !Array.isArray(pos) || pos.length === 0) return 0;
   
-  const totalOrdered = pos.reduce((acc: number, cur: PO) => acc + getOrderedQty(cur), 0);
-  const totalReceived = pos.reduce((acc: number, cur: PO) => acc + getReceivedQty(cur), 0);
+  const updated = pos.filter((po) => {
+    // console.log(po.status == "completed");
+    return po.status=="completed"
+  })
+
+  console.log(updated.length);
+   
+  const totalOrdered = updated.reduce((acc: number, cur: PO) => acc + getOrderedQty(cur), 0);
+  const totalReceived = updated.reduce((acc: number, cur: PO) => acc + getReceivedQty(cur), 0);
   
   if (totalOrdered === 0) return 0;
+  // console.log(totalOrdered, totalReceived);
   
   const urf = (totalReceived * 100) / totalOrdered;
   return parseFloat(urf.toFixed(2));
@@ -96,6 +104,8 @@ export const Mapping = () => {
   
   // Map pos items to their corresponding landing rates using skucode -> skuid mapping
   const mappedData = pos.map(po => {
+    console.log(po.status);
+    
     const landingRateData = landingRateMap.get(po.skuCode);
     return {
       poNumber: po.poNumber,
