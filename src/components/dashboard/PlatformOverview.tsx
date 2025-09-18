@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { FillRate, POBillingValue, SumOfBilling, TotalOrders } from '@/lib/calculation';
+import { FillRate, POBillingValue, SumOfBilling, SumOfPOBillingValue, TotalOrders } from '@/lib/calculation';
 
 
 
@@ -35,7 +35,7 @@ export default function PlatformOverview() {
     id: 7,
     name: 'Swiggy Instamart',
     logo: '🛍️',
-    revenue: formatIndianNumber(SumOfBilling()),
+    revenue: formatIndianNumber(SumOfPOBillingValue()),
     orders: formatIndianNumber(TotalOrders()),
     fillRate: formatIndianNumber(FillRate().toPrecision(2)),
     status: 'active',
