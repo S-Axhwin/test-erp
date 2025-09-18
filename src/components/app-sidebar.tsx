@@ -80,16 +80,16 @@ const data = {
       url: "/vendors",
       icon: IconTruck,
     },
-    {
-      title: "Sales Analytics",
-      url: "/sales-analytics",
-      icon: IconChartArcs,
-    },
-    {
-      title: "Expenses Tracker",
-      url: "/profit-analysis",
-      icon: IconMoneybag,
-    },
+    // {
+    //   title: "Sales Analytics",
+    //   url: "/sales-analytics",
+    //   icon: IconChartArcs,
+    // },
+    // {
+    //   title: "Expenses Tracker",
+    //   url: "/profit-analysis",
+    //   icon: IconMoneybag,
+    // },
       {
       title: "AI Insights",
       url: "/ai-insights",

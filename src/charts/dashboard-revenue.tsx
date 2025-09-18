@@ -3,8 +3,9 @@
 import * as React from "react"
 import { Pie, PieChart, Cell, ResponsiveContainer, Tooltip } from "recharts"
 import { Button } from "@/components/ui/button"
-import { SumOfGrnBillValue } from "@/lib/calculation"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { SumOfGrnBillValue } from "@/lib/calculation"
 
 // Format number to Indian currency format (3 digits: X.XXCr or X.XXL)
 const formatIndianCurrency = (num: number): string => {
@@ -36,7 +37,7 @@ interface TargetData {
 export function DashboardRevenue() {
 
   const [data, setData] = React.useState<RevenueData[]>([])
-  const rev = SumOfGrnBillValue();
+  const rev = SumOfGrnBillValue()
   console.log('rev',rev);
   
   const [currentRevenue, setCurrentRevenue] = React.useState<number>(rev)

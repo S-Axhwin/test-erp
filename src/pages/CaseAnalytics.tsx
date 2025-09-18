@@ -20,6 +20,7 @@ import {
   AreaChart,
   Area
 } from 'recharts';
+import { OpenValuesDatas } from '@/lib/calculation';
 
 interface VendorPerformance {
   vendor: string;
@@ -79,7 +80,7 @@ const trendData = [
 const CaseAnalytics = () => {
   const { pos, openpos, landingRates } = useDataStore();
   const [realTimeData, setRealTimeData] = useState<RealTimeData | null>(null);
-  
+  const {amt: OpenValues} =  OpenValuesDatas();
   // Calculate real-time metrics
   useEffect(() => {
     const calculateMetrics = () => {
@@ -125,7 +126,7 @@ const CaseAnalytics = () => {
         .filter(po => po.receivedQty > 0 && po.status === 'completed')
         .reduce((sum, po) => sum + (po.receivedQty * (po.poAmount || 0)), 0);
       
-      const openPOValue = allOpenPos.reduce((sum, po) => sum + (po.poLineValueWithTax || 0), 0);
+      const openPOValue = OpenValues;
       
       // Case distribution data
       const caseDistribution = [
@@ -159,7 +160,7 @@ const CaseAnalytics = () => {
           poBillingValue,
           closedPOValue,
           grnBillValue,
-          openPOValue
+          openPOValue: OpenValues
         }
       });
     };

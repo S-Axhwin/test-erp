@@ -27,8 +27,10 @@ export const FillRate = (): number => {
   
   if (!pos || !Array.isArray(pos) || pos.length === 0) return 0;
   
-  const totalOrdered = pos.reduce((acc: number, cur: PO) => acc + getOrderedQty(cur), 0);
-  const totalReceived = pos.reduce((acc: number, cur: PO) => acc + getReceivedQty(cur), 0);
+  const completedPos = pos.filter((po: PO) => po.status=="completed");
+
+  const totalOrdered = completedPos.reduce((acc: number, cur: PO) => acc + getOrderedQty(cur), 0);
+  const totalReceived = completedPos.reduce((acc: number, cur: PO) => acc + getReceivedQty(cur), 0);
   
   if (totalOrdered === 0) return 0;
   
@@ -36,7 +38,7 @@ export const FillRate = (): number => {
   return parseFloat(fillRate.toFixed(2));
 };
 
-// LFR (Line Fill Rate) = Average of (Ordered Qty == Received Qty)
+// LFR (Line Fill Rate) =status completeds orderqty==receivedqty then len of this / len of completed avg
 export const LineFillRate = (): number => {
   const { pos } = getDataStore();
   
@@ -47,7 +49,7 @@ export const LineFillRate = (): number => {
   return parseFloat(lineFillRate.toFixed(2));
 };
 
-// URF (Unit Receipt Fill Rate) = (Received Qty * 100) / Ordered Qty
+// URF (Unit Receipt Fill Rate) = status == completed => (Received Qty * 100) / Ordered Qty
 export const UnitReceiptFillRate = (): number => {
   const { pos } = getDataStore();
   
@@ -240,3 +242,18 @@ export const POBillingValue = () => {
   return 0
 }
 
+
+export const OpenValuesDatas = () => {
+  const {openpos} = useDataStore();
+  console.log("open po values", openpos.reduce((acc, cur) => acc + (cur.poLineValueWithTax || 0), 0));
+  
+  return {amt: openpos.reduce((acc, cur) => acc + (cur.poLineValueWithTax || 0), 0)}
+}
+
+export const GetNoOfCases = () => {
+  const mappedData = Mapping();
+  if (!mappedData || !Array.isArray(mappedData) || mappedData.length === 0) return 0;
+  
+  return mappedData
+    .reduce((acc: number, cur) => acc + (cur.cases || 0), 0);
+}
