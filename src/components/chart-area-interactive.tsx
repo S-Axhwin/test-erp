@@ -172,9 +172,9 @@ export function ChartAreaInteractive() {
         <CardTitle>Total Sales Revenue</CardTitle>
         <CardDescription>
           <span className="hidden @[540px]/card:block">
-            Revenue breakdown for the last 3 months - ${totalSales.toLocaleString()}
+            Revenue breakdown for the last 3 months - ₹{totalSales.toLocaleString()}
           </span>
-          <span className="@[540px]/card:hidden">Last 3 months - ${totalSales.toLocaleString()}</span>
+          <span className="@[540px]/card:hidden">Last 3 months - ₹{totalSales.toLocaleString()}</span>
         </CardDescription>
         <CardAction>
           <ToggleGroup
@@ -267,7 +267,7 @@ export function ChartAreaInteractive() {
                       day: "numeric",
                     })
                   }}
-                  formatter={(value) => [`$${value.toLocaleString()}`, ""]}
+                  formatter={(value) => [`₹${value.toLocaleString()}`, ""]}
                   indicator="dot"
                 />
               }
