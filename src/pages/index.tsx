@@ -1,0 +1,146 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import UtilizationChart  from "@/components/dashboard/UtilizationChart";
+import { 
+  Users,
+  Package, 
+  CreditCard,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FillRate, LineFillRate, NonZeroFillRate, POBillingValue, } from "@/lib/calculation"
+import { DashboardRevenue } from "@/charts/dashboard-revenue";
+import { useDataStore } from "@/store/useDataStore";
+import { useEffect } from "react";
+
+export const description = "A radial chart with text"
+
+export default function DealersDashboard() {
+  const {pos, landingRates, setUniversalPo } = useDataStore();
+  // Use useEffect to prevent infinite re-renders
+  useEffect(() => {
+    if(!pos) return;
+    
+    
+    const landingRateMap = new Map(landingRates.map(rate => [rate.skuId, rate]));
+    
+    // Map pos items to their corresponding landing rates using skucode -> skuid mapping
+    const mappedData = pos.map(po => {
+      const landingRateData = landingRateMap.get(po.skuCode);
+      return {
+        poNumber: po.poNumber,
+        vendor: po.vendor,
+        orderedQty: po.orderedQty,
+        receivedQty: po.receivedQty,
+        poAmount: po.poAmount,
+        skuCode: landingRateData?.skuCode|| po.skuCode, // Fallback to original skuCode
+        units: ((landingRateData?.cases || 1)),
+        cases: (po.orderedQty / (landingRateData?.cases || 1)),
+        grncase: (po.receivedQty / (landingRateData?.cases || 1)),
+        mrp: landingRateData?.mrp || 0,
+        landingRate: landingRateData?.landingRate || 0,
+        skuDescription: po.skuDescription,
+        poLineValueWithTax: po.poLineValueWithTax,
+        grnBillValue: po.receivedQty * (landingRateData?.landingRate || 0),
+        status: po.status
+      };
+    });
+    
+    console.log("Mapped data: ", mappedData);
+    setUniversalPo(mappedData);
+  }, [pos, landingRates, setUniversalPo]);
+
+  return (
+    <div className="px-6 space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Left Column - Cards */}
+        <div className="xl:col-span-1 flex flex-col h-[calc(100vh-2rem)] gap-4 py-4">
+          {/* Welcome Card - 1 part */}
+          <div className="h-1/4">
+            <Card className="h-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="h-full p-6">
+                <div className="flex items-center justify-between h-full">
+                  <div className="space-y-3">
+                    <div>
+                      <h2 className="text-2xl font-bold">Welcome back, John!</h2>
+                      <p className="text-purple-100 mt-1">Have a great day at work</p>
+                    </div>
+                  </div>
+                  <div className="bg-white/20 p-3 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Performance Gauge - 2 parts */}
+          <div className="h-2/4">
+            <div className="h-full w-full p-2">
+              <DashboardRevenue/>
+            </div>
+          </div>
+          
+          {/* AI Assistance Card - 1 part */}
+          <div className="h-1/4">
+            <Card className="h-full p-0">
+              <CardContent className="h-full p-6 flex flex-col items-center justify-center text-center">
+                <h3 className="text-xl font-bold mb-2 text-purple-600">Need Assistance?</h3>
+                <p className="mb-4 text-foreground">Get actionable insights and recommendations.</p>
+                <Button 
+                  variant="secondary" 
+                  className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  onClick={() => console.log("Chat with AI clicked")}
+                >
+                  Keep Chat with Me
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Right Column - Analytics */}
+        <div className="xl:col-span-2 flex flex-col h-[calc(100vh-2rem)] gap-4 py-4">
+          <div className="h-[60%] min-h-0 mb-6">
+            <UtilizationChart />
+          </div>
+          {/* Bottom Stats Row */}
+          <div className="h-[40%] min-h-0">
+            <div className="h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {/* Dealer Profiles */}
+            <MetricCard
+              title="Unit Fill Rate"
+              value={Math.round(FillRate()).toString()+"%"}
+              subtitle="7 platforms avg"
+              trend={{ value: 12, isPositive: true }}
+              icon={<Users className="h-4 w-4" />}
+              chartType="profile"
+            />
+
+            {/* Transactions */}
+            <MetricCard
+              title="Line fill rate"
+              value={Math.round(LineFillRate()).toString()+"%"}
+              subtitle="7 platforms avg"
+              trend={{ value: 8, isPositive: true }}
+              icon={<CreditCard className="h-4 w-4" />}
+              chartType="transaction"
+            />
+
+            {/* Products */}
+            <MetricCard
+              title="NZFR"
+              value={Math.round(NonZeroFillRate()).toString()+"%"}
+              subtitle="7 New Products"
+              trend={{ value: 5, isPositive: true }}
+              icon={<Package className="h-4 w-4" />}
+              chartType="product"
+            />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,50 @@
+import { Route, Routes } from "react-router-dom"
+import Index from "./pages/index"
+import Upload from "./pages/upload"
+import Pos from "./pages/Pos"
+import OpenPos from "./pages/OpenPos"
+import PlatformComparison from "./pages/Platform"
+import AIChatbot from "./pages/AIChatbot"
+import AIInsights from "./pages/AIInsights"
+import Target from "./pages/Target"
+import ProfitAnalysis from "./pages/ProfitAnalysis"
+import VendorAnalytics from "./pages/VendorAnalytics"
+import VendorDetail from "./pages/VendorDetail"
+import ProfilePage from "./pages/Profile"
+import NotificationsPage from "./pages/Notifications"
+import AiChatPage from "./pages/AiChat"
+import Conversation from "./pages/Conversation"
+import CaseAnalytics from "./pages/CaseAnalytics"
+import LandingRate from "./pages/LandingRate"
+
+export default function Page() {
+  return (
+    <>
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <Routes>
+                <Route path="/" element={<Index/>} />
+                <Route path="/upload" element={<Upload />} />
+                <Route path="/pos" element={<Pos />} />
+                <Route path="/open-pos" element={<OpenPos />} />
+                <Route path="/platform" element={<PlatformComparison />} />
+                <Route path="/ai-chatbot" element={<AIChatbot />} />
+                <Route path="/ai-chat" element={<AiChatPage />} />
+                <Route path="/conversation" element={<Conversation />} />
+                <Route path="/vendors" element={<VendorAnalytics />} />
+                <Route path="/ai-insights" element={<AIInsights />} />
+                <Route path="/target" element={<Target />} />
+                <Route path="/profit-analysis" element={<ProfitAnalysis />} />
+                <Route path="/vendors/:id" element={<VendorDetail />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/case-analytics" element={<CaseAnalytics />} />
+                <Route path="/landing-rate" element={<LandingRate />} />
+              </Routes>
+            </div>
+          </div>
+        </div>
+    </>
+  )
+}
