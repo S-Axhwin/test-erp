@@ -20,7 +20,8 @@ import {
   LineFillRate, 
   NonZeroFillRate, 
   TotalOrders,
-  getAllMetrics
+  getAllMetrics,
+  SumOfClosedPOBillingValue
 } from '@/lib/calculation';
 
 type Status = 'todo' | 'in_progress' | 'completed';
@@ -230,8 +231,8 @@ function AddEditTargetDialog({
       title: '',
       description: '',
       category: 'revenue',
-      currentValue: Math.round(SumOfBilling()),
-      targetValue: Math.round(SumOfBilling()),
+      currentValue: Math.round(SumOfClosedPOBillingValue()),
+      targetValue: Math.round(SumOfClosedPOBillingValue()+1000000),
       progress: 0,
       status: 'todo',
       deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],

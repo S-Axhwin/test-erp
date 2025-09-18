@@ -1,4 +1,4 @@
-// No need to import React as it's not directly used
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -20,10 +20,44 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { SumOfClosedPOBillingValue, SumOfClosedPOCases, SumOfGrnCases, SumOfOpenPOBillingValue, SumOfPOBillingValue, SumOfPOCases, } from '@/lib/calculation';
+import { 
+  SumOfClosedPOBillingValue, 
+  SumOfClosedPOCases, 
+  SumOfGrnCases, 
+  SumOfOpenPOBillingValue, 
+  SumOfPOBillingValue, 
+  SumOfPOCases,
+  SumOfGrnBillValue,
+  Mapping
+} from '@/lib/calculation';
+
+interface VendorPerformance {
+  vendor: string;
+  totalCases: number;
+  open: number;
+  closed: number;
+  grn: number;
+  billing: number;
+  grnBilling: number;
+}
+
+interface MappedPO {
+  vendor: string;
+  status: string;
+  poLineValueWithTax: number;
+  grnBillValue: number;
+  receivedQty: number;
+  [key: string]: any;
+}
+
+interface RealTimeData {
+  caseDistribution: Array<{ name: string; value: number; color: string }>;
+  billingData: Array<{ name: string; value: number; color: string }>;
+  vendorPerformance: VendorPerformance[];
+  mappedData: MappedPO[];
+}
 
 // Mock data - replace with real data from your API
-
 const trendData = [
   { name: 'Jan', cases: 1200, closed: 800, grn: 400 },
   { name: 'Feb', cases: 1400, closed: 900, grn: 500 },
@@ -33,39 +67,82 @@ const trendData = [
   { name: 'Jun', cases: 1842, closed: 1245, grn: 843 },
 ];
 
-const valueData = [
-  { name: 'Billing Value', value: 1200000 },
-  { name: 'Closed PO Value', value: 845000 },
-  { name: 'GRN Billing', value: 612000 },
-  { name: 'Open PO Value', value: 397000 },
-];
-
-const caseDistribution = [
-  { name: 'Open', value: 400, color: '#8b5cf6' },
-  { name: 'Closed', value: 600, color: '#10b981' },
-  { name: 'GRN', value: 300, color: '#7c3aed' },
-];
-
-const vendorData = [
-  { vendor: 'Vendor A', totalCases: 450, open: 120, closed: 250, grn: 80, billing: 250000, grnBilling: 80000 },
-  { vendor: 'Vendor B', totalCases: 380, open: 90, closed: 220, grn: 70, billing: 200000, grnBilling: 70000 },
-  { vendor: 'Vendor C', totalCases: 420, open: 100, closed: 240, grn: 80, billing: 220000, grnBilling: 75000 },
-  { vendor: 'Vendor D', totalCases: 390, open: 95, closed: 225, grn: 70, billing: 205000, grnBilling: 72000 },
-  { vendor: 'Vendor E', totalCases: 410, open: 105, closed: 235, grn: 70, billing: 215000, grnBilling: 73000 },
-];
-
 const CaseAnalytics = () => {
-  const { pos, openpos } = useDataStore();
+  const { pos, openpos, landingRates } = useDataStore();
+  const [realTimeData, setRealTimeData] = useState<RealTimeData | null>(null);
   
-  // Calculate real metrics from store data
-  const allPOs = [...pos, ...openpos];
-  const completedPOs = allPOs.filter(po => ['completed', 'confirmed', 'expired'].includes(po.status || 'open'));
-  const totalPOBillingValue = completedPOs.reduce((sum, po) => sum + (po.poLineValueWithTax || 0), 0);
-  const totalPOCases = completedPOs.length;
-  const closedPOCases = allPOs.filter(po => po.status === 'completed').length;
-  const openPOCases = allPOs.filter(po => po.status === 'open').length;
-  const closedPOValue = allPOs.filter(po => po.status === 'completed').reduce((sum, po) => sum + (po.poLineValueWithTax || 0), 0);
-  const openPOValue = allPOs.filter(po => po.status === 'open').reduce((sum, po) => sum + (po.poLineValueWithTax || 0), 0);
+  // Calculate real-time metrics
+  useEffect(() => {
+    const calculateMetrics = () => {
+      const mappedData = Mapping();
+      
+      // Case distribution data
+      const totalPOCases = SumOfPOCases();
+      const closedPOCases = SumOfClosedPOCases();
+      const grnCases = SumOfGrnCases();
+      const openPOCases = (pos?.filter(po => po.status === 'open').length || 0) + (openpos?.length || 0);
+      
+      const caseDistribution = [
+        { name: 'Total PO', value: totalPOCases, color: '#8b5cf6' },
+        { name: 'Closed', value: closedPOCases, color: '#10b981' },
+        { name: 'GRN', value: grnCases, color: '#f59e0b' },
+        { name: 'Open', value: openPOCases, color: '#ef4444' }
+      ];
+      
+      // Billing values data
+      const billingData = [
+        { name: 'PO Billing', value: SumOfPOBillingValue(), color: '#8b5cf6' },
+        { name: 'Closed PO', value: SumOfClosedPOBillingValue(), color: '#10b981' },
+        { name: 'GRN Billing', value: SumOfGrnBillValue(), color: '#f59e0b' },
+        { name: 'Open PO', value: SumOfOpenPOBillingValue(), color: '#ef4444' }
+      ];
+      
+      // Vendor performance from mapped data
+      const vendorPerformance = mappedData ? getVendorPerformance(mappedData) : [];
+      
+      setRealTimeData({
+        caseDistribution,
+        billingData,
+        vendorPerformance,
+        mappedData: mappedData || []
+      });
+    };
+    
+    calculateMetrics();
+    const interval = setInterval(calculateMetrics, 5000); // Update every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [pos, openpos, landingRates]);
+  
+  // Get vendor performance from mapped data
+  const getVendorPerformance = (mappedData: MappedPO[]): VendorPerformance[] => {
+    const vendorStats = mappedData.reduce((acc: Record<string, VendorPerformance>, item: MappedPO) => {
+      const vendor = item.vendor || 'Unknown';
+      if (!acc[vendor]) {
+        acc[vendor] = {
+          vendor,
+          totalCases: 0,
+          open: 0,
+          closed: 0,
+          grn: 0,
+          billing: 0,
+          grnBilling: 0
+        };
+      }
+      
+      acc[vendor].totalCases += 1;
+      acc[vendor].billing += item.poLineValueWithTax || 0;
+      acc[vendor].grnBilling += item.grnBillValue || 0;
+      
+      if (item.status === 'completed') acc[vendor].closed += 1;
+      else if (item.status === 'open') acc[vendor].open += 1;
+      if (item.receivedQty > 0) acc[vendor].grn += 1;
+      
+      return acc;
+    }, {});
+    
+    return Object.values(vendorStats).slice(0, 10); // Top 10 vendors
+  };
   
   // Format currency in rupees
   const formatCurrency = (value: number) => {
@@ -80,10 +157,10 @@ const CaseAnalytics = () => {
     { id: 1, title: 'Sum of PO Cases', value: SumOfPOCases().toLocaleString(), change: '+12.5%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
     { id: 2, title: 'Closed PO Cases', value: SumOfClosedPOCases().toLocaleString(), change: '+8.2%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
     { id: 3, title: 'GRN Cases', value: SumOfGrnCases().toLocaleString(), change: '+5.7%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 4, title: 'Open PO Cases', value: 2673.23, change: '+5.7%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
-    { id: 5, title: 'PO Billing Value', value: SumOfPOBillingValue(), change: '+15.3%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 6, title: 'Closed PO Value', value: SumOfClosedPOBillingValue(), change: '+9.8%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 7, title: 'GRN Billing Values', value: '₹612K', change: '+7.1%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 4, title: 'Open PO Cases', value: ((pos?.filter(po => po.status === 'open').length || 0) + (openpos?.length || 0)).toLocaleString(), change: '+5.7%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
+    { id: 5, title: 'PO Billing Value', value: formatCurrency(SumOfPOBillingValue()), change: '+15.3%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 6, title: 'Closed PO Value', value: formatCurrency(SumOfClosedPOBillingValue()), change: '+9.8%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 7, title: 'GRN Billing Values', value: formatCurrency(SumOfGrnBillValue()), change: '+7.1%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
     { id: 8, title: 'Open PO Value', value: formatCurrency(SumOfOpenPOBillingValue()), change: '-3.2%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
   ];
 
@@ -186,7 +263,7 @@ const CaseAnalytics = () => {
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={caseDistribution}
+                        data={realTimeData?.caseDistribution || []}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
@@ -203,16 +280,16 @@ const CaseAnalytics = () => {
                             <text
                               x={x}
                               y={y}
-                              fill={caseDistribution[index].color}
+                              fill={realTimeData?.caseDistribution[index]?.color}
                               textAnchor={x > Number(cx) ? 'start' : 'end'}
                               dominantBaseline="central"
                             >
-                              {`${caseDistribution[index].name} ${(caseDistribution[index].value / caseDistribution.reduce((a, b) => a + b.value, 0) * 100).toFixed(0)}%`}
+                              {`${realTimeData?.caseDistribution[index]?.name || ''} ${realTimeData?.caseDistribution[index]?.value || 0}`}
                             </text>
                           );
                         }}
                       >
-                        {caseDistribution.map((entry, index) => (
+                        {(realTimeData?.caseDistribution || []).map((entry, index: number) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
@@ -232,13 +309,13 @@ const CaseAnalytics = () => {
               <CardContent>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={valueData}>
+                    <BarChart data={realTimeData?.billingData || []}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
+                      <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                      <Tooltip formatter={(value: number) => [formatCurrency(value), 'Value']} />
                       <Legend />
-                      <Bar dataKey="value" fill="#8884d8" name="Value (₹)" />
+                      <Bar dataKey="value" fill="#8b5cf6" name="Value (₹)" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -251,7 +328,7 @@ const CaseAnalytics = () => {
               <CardContent>
                 <div className="h-[300px] overflow-auto">
                   <div className="grid gap-4">
-                    {vendorData.map((vendor, index) => (
+                    {(realTimeData?.vendorPerformance || []).map((vendor, index: number) => (
                       <div key={index} className="flex items-center justify-between p-2 hover:bg-accent/50 rounded-lg transition-colors">
                         <div className="font-medium">{vendor.vendor}</div>
                         <div className="flex items-center space-x-4">
@@ -259,7 +336,7 @@ const CaseAnalytics = () => {
                             {vendor.closed}/{vendor.totalCases} closed
                           </div>
                           <div className="text-sm font-medium">
-                            ₹{(vendor.billing / 1000).toFixed(0)}K
+                            {formatCurrency(vendor.billing)}
                           </div>
                         </div>
                       </div>
@@ -277,42 +354,7 @@ const CaseAnalytics = () => {
         <CardHeader>
           <CardTitle>Vendor Case Details</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="h-12 px-4 text-left font-medium">Vendor</th>
-                  <th className="h-12 px-4 text-right font-medium">Total Cases</th>
-                  <th className="h-12 px-4 text-right font-medium">Open</th>
-                  <th className="h-12 px-4 text-right font-medium">Closed</th>
-                  <th className="h-12 px-4 text-right font-medium">GRN</th>
-                  <th className="h-12 px-4 text-right font-medium">PO Billing Value</th>
-                  <th className="h-12 px-4 text-right font-medium">GRN Billing</th>
-                  <th className="h-12 px-4 text-right font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vendorData.map((vendor, index) => (
-                  <tr key={index} className="border-b hover:bg-accent/50 transition-colors">
-                    <td className="p-4 font-medium">{vendor.vendor}</td>
-                    <td className="p-4 text-right">{vendor.totalCases}</td>
-                    <td className="p-4 text-right">{vendor.open}</td>
-                    <td className="p-4 text-right">{vendor.closed}</td>
-                    <td className="p-4 text-right">{vendor.grn}</td>
-                    <td className="p-4 text-right">₹{(vendor.billing / 1000).toFixed(1)}K</td>
-                    <td className="p-4 text-right">₹{(vendor.grnBilling / 1000).toFixed(1)}K</td>
-                    <td className="p-4 text-right">
-                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                        Active
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
+        
       </Card>
     </div>
   );
