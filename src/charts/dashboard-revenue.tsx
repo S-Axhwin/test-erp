@@ -163,22 +163,19 @@ export function DashboardRevenue() {
                       strokeWidth={2}
                     />
                   ))}
-                  <text
-                    x="50%"
-                    y="50%"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    className="text-2xl font-bold transition-all duration-300"
-                    style={
-                      localStorage.getItem("vite-ui-theme") === "dark"
-                        ? { fill: "#fff" }
-                        : { fill: "#000" }
-                    }
-                  >
-                    
-                    {formatIndianCurrency(currentRevenue)}
-                  </text>
                 </Pie>
+                <text
+                  x="50%"
+                  y="50%"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="text-2xl font-bold transition-all duration-300"
+                  style={{
+                    fill: localStorage.getItem("vite-ui-theme") === "dark" ? "#fff" : "#000"
+                  }}
+                >
+                  {formatIndianCurrency(currentRevenue)}
+                </text>
               </PieChart>
             </ResponsiveContainer>
           </div>
