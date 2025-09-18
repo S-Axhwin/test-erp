@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import type { Variants } from 'framer-motion';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Target, BarChart3, Lightbulb, Zap, Plus, Paperclip, Maximize2, Clock, ZapOff, MessageSquare, History, Settings, User, Menu, X, ChevronRight } from 'lucide-react';
+import { Sparkles, Target, BarChart3, Lightbulb, Zap, Plus, Clock, MessageSquare, History, Menu, X, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { WobbleCards } from '@/components/wobble-card';
 import { AIFeatureCard } from '@/components/ai-feature-card';
 
 const cardVariants: Variants = {
@@ -26,16 +25,6 @@ const cardVariants: Variants = {
     y: -5,
     scale: 1.02,
     transition: { duration: 0.2 }
-  }
-};
-
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
   }
 };
 
@@ -396,6 +385,19 @@ export default function AIChatbot() {
           onClick={() => setIsHistoryOpen(!isHistoryOpen)}
         >
           <History className="h-5 w-5" />
+        </Button>
+
+        {/* Gemini AI Button */}
+        <Button
+          className={cn(
+            "fixed bottom-6 right-20 rounded-full w-12 h-12 shadow-lg z-40",
+            "bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700",
+            "text-white transition-all duration-300 hover:scale-110"
+          )}
+          onClick={() => navigate('/conversation?ai=gemini')}
+          title="Chat with Gemini AI"
+        >
+          <Bot className="h-5 w-5" />
         </Button>
       </div>
     </div>

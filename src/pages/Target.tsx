@@ -20,7 +20,8 @@ import {
   LineFillRate, 
   NonZeroFillRate, 
   TotalOrders,
-  getAllMetrics 
+  getAllMetrics, 
+  SumOfGrnBillValue
 } from '@/lib/calculation';
 
 type Status = 'todo' | 'in_progress' | 'completed';
@@ -78,7 +79,7 @@ const defaultTargets: BusinessTarget[] = [
     title: 'Monthly Revenue Target',
     description: 'Achieve monthly revenue goal',
     category: 'revenue',
-    currentValue: Math.round(SumOfBilling()),
+    currentValue: Math.round(SumOfGrnBillValue()),
     targetValue: 100000,
     progress: 0,
     deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
