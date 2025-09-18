@@ -84,7 +84,7 @@ const CaseAnalytics = () => {
     { id: 5, title: 'PO Billing Value', value: SumOfPOBillingValue(), change: '+15.3%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
     { id: 6, title: 'Closed PO Value', value: SumOfClosedPOBillingValue(), change: '+9.8%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
     { id: 7, title: 'GRN Billing Values', value: '₹612K', change: '+7.1%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 8, title: 'Open PO Value', value: formatCurrency(openPOValue), change: '-3.2%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
+    { id: 8, title: 'Open PO Value', value: formatCurrency(SumOfOpenPOBillingValue()), change: '-3.2%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
   ];
 
   return (
