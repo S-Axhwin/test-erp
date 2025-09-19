@@ -102,7 +102,7 @@ export interface Vendor {
 export const vendorData: Vendor[] = [
   { 
     id: 1, 
-    name: 'Acme Inc.', 
+    name: 'Nudge', 
     joinedDate: '2023-01-15', 
     fillRate: 98, 
     reliability: 4.8, 

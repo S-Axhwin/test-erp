@@ -33,8 +33,8 @@ export default function Page() {
                 <Route path="/pos" element={<Pos />} />
                 <Route path="/open-pos" element={<OpenPos />} />
                 <Route path="/platform" element={<PlatformComparison />} />
-                <Route path="/ai-chatbot" element={<AIChatbot />} />
-                <Route path="/ai-chat" element={<AiChatPage />} />
+                {/* <Route path="/ai-chatbot" element={<AIChatbot />} />
+                <Route path="/ai-chat" element={<AiChatPage />} /> */}
                 <Route path="/smart-chat" element={<SmartChat />} />
                 <Route path="/sales-analytics" element={<Sales />}/>
                 <Route path="/conversation" element={<Conversation />} />
