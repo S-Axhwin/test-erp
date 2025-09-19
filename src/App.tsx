@@ -18,6 +18,7 @@ import SmartChat from "./pages/SmartChat"
 import CaseAnalytics from "./pages/CaseAnalytics"
 import LandingRate from "./pages/LandingRate"
 import Sales from "./pages/Sales"
+import Test from "./pages/Test"
 
 export default function Page() {
   return (
@@ -27,6 +28,7 @@ export default function Page() {
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <Routes>
                 <Route path="/" element={<Index/>} />
+                <Route path="/test" element={<Test/>} />
                 <Route path="/upload" element={<Upload />} />
                 <Route path="/pos" element={<Pos />} />
                 <Route path="/open-pos" element={<OpenPos />} />

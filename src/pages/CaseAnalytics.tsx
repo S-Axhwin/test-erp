@@ -20,7 +20,7 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { OpenValuesDatas } from '@/lib/calculation';
+import { OpenValuesDatas, SumOfGrnBillValue } from '@/lib/calculation';
 
 interface VendorPerformance {
   vendor: string;
@@ -81,6 +81,7 @@ const CaseAnalytics = () => {
   const { pos, openpos, landingRates } = useDataStore();
   const [realTimeData, setRealTimeData] = useState<RealTimeData | null>(null);
   const {amt: OpenValues} =  OpenValuesDatas();
+  const grnBilling = SumOfGrnBillValue();
   // Calculate real-time metrics
   useEffect(() => {
     const calculateMetrics = () => {
@@ -217,7 +218,7 @@ const CaseAnalytics = () => {
     { id: 4, title: 'Open PO Cases', value: realTimeData.metrics.openPOCases.toLocaleString(), change: '+5.7%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
     { id: 5, title: 'PO Billing Value', value: formatCurrency(realTimeData.metrics.poBillingValue), change: '+15.3%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
     { id: 6, title: 'Closed PO Value', value: formatCurrency(realTimeData.metrics.closedPOValue), change: '+9.8%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
-    { id: 7, title: 'GRN Billing Values', value: formatCurrency(realTimeData.metrics.grnBillValue), change: '+7.1%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
+    { id: 7, title: 'GRN Billing Values', value: formatCurrency(grnBilling), change: '+7.1%', trend: 'up', icon: <TrendingUp className="h-5 w-5" /> },
     { id: 8, title: 'Open PO Value', value: formatCurrency(realTimeData.metrics.openPOValue), change: '-3.2%', trend: 'down', icon: <TrendingDown className="h-5 w-5" /> },
   ] : [];
 
