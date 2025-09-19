@@ -17,11 +17,12 @@ export const description = "A radial chart with text"
 
 export default function DealersDashboard() {
   const {pos, landingRates, setUniversalPo } = useDataStore();
+  
   // Use useEffect to prevent infinite re-renders
   useEffect(() => {
-    if(!pos) return;
+    if(!pos || pos.length === 0) return;
     
-    
+    // Create a stable reference for the mapped data
     const landingRateMap = new Map(landingRates.map(rate => [rate.skuId, rate]));
     
     // Map pos items to their corresponding landing rates using skucode -> skuid mapping
@@ -48,7 +49,7 @@ export default function DealersDashboard() {
     
     console.log("Mapped data: ", mappedData);
     setUniversalPo(mappedData);
-  }, [pos, landingRates, setUniversalPo]);
+  }, [pos, landingRates]); // Removed setUniversalPo from dependencies
 
   return (
     <div className="px-6 space-y-6">

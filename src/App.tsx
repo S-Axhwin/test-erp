@@ -23,7 +23,7 @@ import Test from "./pages/Test"
 export default function Page() {
   return (
     <>
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-col flex-1">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <Routes>
@@ -33,8 +33,8 @@ export default function Page() {
                 <Route path="/pos" element={<Pos />} />
                 <Route path="/open-pos" element={<OpenPos />} />
                 <Route path="/platform" element={<PlatformComparison />} />
-                {/* <Route path="/ai-chatbot" element={<AIChatbot />} />
-                <Route path="/ai-chat" element={<AiChatPage />} /> */}
+                {/* <Route path="/ai-chatbot" element={<AIChatbot />} /> */}
+                {/* <Route path="/ai-chat" element={<AiChatPage />} /> */}
                 <Route path="/smart-chat" element={<SmartChat />} />
                 <Route path="/sales-analytics" element={<Sales />}/>
                 <Route path="/conversation" element={<Conversation />} />

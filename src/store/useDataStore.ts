@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { clearCalculationCaches } from "@/lib/calculation";
 
 export type PO = {
   poNumber: string;
@@ -65,6 +66,7 @@ const store = create<Store>()(
       setUniversalPo: (po) =>
         set(() => {
           console.log('Setting Universal PO:', po); // Debug log
+          clearCalculationCaches(); // Clear caches when data changes
           return {
             universalPO: [...po],
           };
@@ -77,6 +79,7 @@ const store = create<Store>()(
             return state; // Don't add invalid data
           }
           console.log('Adding PO:', po); // Debug log
+          clearCalculationCaches(); // Clear caches when data changes
           const newState = {
             pos: [...state.pos, po],
           };
@@ -92,6 +95,7 @@ const store = create<Store>()(
             return state; // Don't add invalid data
           }
           console.log('Adding OpenPO:', po); // Debug log
+          clearCalculationCaches(); // Clear caches when data changes
           const newState = {
             openpos: [...state.openpos, po],
           };
@@ -105,6 +109,7 @@ const store = create<Store>()(
             console.error('Invalid LandingRate data - missing required fields:', rate);
             return state;
           }
+          clearCalculationCaches(); // Clear caches when data changes
           return {
             landingRates: [...state.landingRates, rate],
           };

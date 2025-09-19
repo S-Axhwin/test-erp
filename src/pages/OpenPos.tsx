@@ -50,44 +50,44 @@ const OpenPos = () => {
   }, [openpos]);
 
   // Calculate summary metrics
-  const summaryMetrics = useMemo(() => {
-    // Count unique PO numbers
-    const uniquePoNumbers = new Set(openpos.map(po => po.poNumber));
-    
-    // Calculate total PO value
-    const totalValue = openpos.reduce((sum, po) => sum + (po.poAmount || 0), 0);
-    
-    // Calculate average fill rate
-    const { totalFill, validItems } = openpos.reduce(
-      (acc: { totalFill: number; validItems: number }, po) => {
-        if (po.orderedQty > 0) {
-          return {
-            totalFill: acc.totalFill + (po.receivedQty / po.orderedQty) * 100,
-            validItems: acc.validItems + 1
-          };
-        }
-        return acc;
-      },
-      { totalFill: 0, validItems: 0 }
-    );
-    
-    return {
-      totalOpenPos: uniquePoNumbers.size,
-      totalPoValue: totalValue,
-      avgFillRate: validItems > 0 ? (totalFill / validItems) : 0
-    };
-  }, [openpos]);
+  // const summaryMetrics = useMemo(() => {
+  //   // Count unique PO numbers
+  //   const uniquePoNumbers = new Set(openpos.map(po => po.poNumber));
+  //   
+  //   // Calculate total PO value
+  //   const totalValue = openpos.reduce((sum, po) => sum + (po.poAmount || 0), 0);
+  //   
+  //   // Calculate average fill rate
+  //   const { totalFill, validItems } = openpos.reduce(
+  //     (acc: { totalFill: number; validItems: number }, po) => {
+  //       if (po.orderedQty > 0) {
+  //         return {
+  //           totalFill: acc.totalFill + (po.receivedQty / po.orderedQty) * 100,
+  //           validItems: acc.validItems + 1
+  //         };
+  //       }
+  //       return acc;
+  //     },
+  //     { totalFill: 0, validItems: 0 }
+  //   );
+  //   
+  //   return {
+  //     totalOpenPos: uniquePoNumbers.size,
+  //     totalPoValue: totalValue,
+  //     avgFillRate: validItems > 0 ? (totalFill / validItems) : 0
+  //   };
+  // }, [openpos]);
   
   
 
   // Format currency
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(value);
-  };
+  // const formatCurrency = (value: number) => {
+  //   return new Intl.NumberFormat('en-IN', {
+  //     style: 'currency',
+  //     currency: 'INR',
+  //     maximumFractionDigits: 0
+  //   }).format(value);
+  // };
 
   // Group PO items by PO number
   const groupedPos = useMemo(() => {
@@ -229,17 +229,16 @@ const OpenPos = () => {
   return (
       <Card className="border-0 shadow-none dark:bg-black"> 
         <CardHeader>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex flex-col gap-4 justify-between items-start md:flex-row md:items-center">
             <div>
               <CardTitle className="text-2xl">Purchase Orders</CardTitle>
               <CardDescription>
                 {filteredPos.length} of {openpos.length} purchase orders
               </CardDescription>
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <div className="flex flex-col gap-2 w-full sm:flex-row md:w-auto">
               <div className="relative w-full md:w-64">
-                <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <IconSearch className="absolute left-3 top-1/2 w-4 h-4 transform -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search POs or vendors..."
                   value={searchTerm}
@@ -251,7 +250,7 @@ const OpenPos = () => {
               <div className="flex gap-2">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-full md:w-32">
-                    <IconFilter className="h-4 w-4 mr-2" />
+                    <IconFilter className="mr-2 w-4 h-4" />
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -263,7 +262,7 @@ const OpenPos = () => {
                 
                 <Select value={vendorFilter} onValueChange={setVendorFilter}>
                   <SelectTrigger className="w-full md:w-32">
-                    <IconFilter className="h-4 w-4 mr-2" />
+                    <IconFilter className="mr-2 w-4 h-4" />
                     <SelectValue placeholder="Vendor" />
                   </SelectTrigger>
                   <SelectContent>
@@ -277,17 +276,43 @@ const OpenPos = () => {
             </div>
           </div>
         </CardHeader>
+        <div className="flex gap-2 p-2 w-full">
+        <Card className="gap-1 py-1 w-1/2">
+              <CardHeader className="text-sm dark:text-white/70">
+                Open PO Cases
+              </CardHeader>
+              <CardContent className="text-2xl font-bold">
+                1223
+              </CardContent>
+        </Card>
+        <Card className="gap-1 py-1 w-1/2">
+              <CardHeader className="text-sm dark:text-white/70">
+                Open PO Value
+              </CardHeader>
+              <CardContent className="text-2xl font-bold">
+                1223
+              </CardContent>
+        </Card>
+        <Card className="hidden gap-1 py-1 w-1/2 md:flex">
+              <CardHeader className="text-sm dark:text-white/70">
+                Total Open POs
+              </CardHeader>
+              <CardContent className="text-2xl font-bold">
+                1223
+              </CardContent>
+        </Card>
+        </div>
         <CardContent>
           {paginatedPos.length > 0 ? (
             <>
-              <div className="border rounded-lg overflow-hidden">
+              <div className="overflow-x-auto rounded-lg border">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>PO Number</TableHead>
-                      <TableHead>Vendor</TableHead>
-                      <TableHead className="text-right">Ordered Qty</TableHead>
-                      <TableHead className="text-right">Total Amount</TableHead>
+                      <TableHead className="min-w-[120px]">PO Number</TableHead>
+                      <TableHead className="min-w-[200px] whitespace-nowrap">Vendor</TableHead>
+                      <TableHead className="text-right min-w-[100px]">Ordered Qty</TableHead>
+                      <TableHead className="text-right min-w-[120px]">Total Amount</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -298,28 +323,34 @@ const OpenPos = () => {
                           onClick={() => toggleGroup(group.poNumber)}
                         >
                           <TableCell className="font-medium">
-                            <div className="flex items-center gap-2">
+                            <div className="flex gap-2 items-center">
                               {expandedGroups[group.poNumber] ? 
-                                <IconChevronUp className="h-4 w-4" /> : 
-                                <IconChevronDown className="h-4 w-4" />
+                                <IconChevronUp className="w-4 h-4" /> : 
+                                <IconChevronDown className="w-4 h-4" />
                               }
                               {group.poNumber}
                             </div>
                           </TableCell>
-                          <TableCell>{group.vendor}</TableCell>
+                          <TableCell className="max-w-[300px] break-words">
+                            <div className="truncate" title={group.vendor}>
+                              {group.vendor}
+                            </div>
+                          </TableCell>
                           <TableCell className="text-right">{group.totalOrderedQty}</TableCell>
                           <TableCell className="text-right">₹{new Intl.NumberFormat('en-IN').format(parseFloat(group.totalAmount.toFixed(2)))}</TableCell>
                         </TableRow>
                         
                         {expandedGroups[group.poNumber] && group.items.map((item, itemIndex) => (
                           <TableRow key={`${group.poNumber}-${itemIndex}`} className="bg-muted/10">
-                            <TableCell colSpan={2} className="pl-12">
+                            <TableCell colSpan={2} className="pl-12 max-w-[400px]">
                               <div className="flex flex-col">
-                                <span className="font-medium">
+                                <span className="font-medium break-words">
                                   {item.skuCode?.toString() || item.itemCode?.toString() || 'N/A'}
                                 </span>
-                                <span className="text-muted-foreground text-sm">
-                                  {item.skuDescription?.toString() || item.itemName?.toString() || `Item ${itemIndex + 1}`}
+                                <span className="text-sm break-words text-muted-foreground" title={item.skuDescription?.toString() || item.itemName?.toString() || `Item ${itemIndex + 1}`}>
+                                  <div className="truncate">
+                                    {item.skuDescription?.toString() || item.itemName?.toString() || `Item ${itemIndex + 1}`}
+                                  </div>
                                 </span>
                               </div>
                             </TableCell>
@@ -336,8 +367,8 @@ const OpenPos = () => {
               </div>
               
               {totalPages > 1 && (
-                <div className="flex items-center justify-between px-2 py-4">
-                  <div className="text-sm text-muted-foreground">
+                <div className="flex justify-end items-center px-2 py-4">
+                  <div className="hidden md:text-sm text-muted-foreground">
                     Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredPos.length)} of {filteredPos.length} entries
                   </div>
                   <div className="flex items-center space-x-2">
@@ -347,7 +378,7 @@ const OpenPos = () => {
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
                     >
-                      <IconChevronLeft className="h-4 w-4 mr-2" />
+                      <IconChevronLeft className="mr-2 w-4 h-4" />
                       Previous
                     </Button>
                     
@@ -371,18 +402,19 @@ const OpenPos = () => {
                       size="sm"
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
+                      className="hidden md:flex"
                     >
                       Next
-                      <IconChevronRight className="h-4 w-4 ml-2" />
+                      <IconChevronRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
                 </div>
               )}
             </>
           ) : (
-            <div className="text-center py-12">
-              <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                <IconSearch className="h-6 w-6 text-muted-foreground" />
+            <div className="py-12 text-center">
+              <div className="flex justify-center items-center mx-auto w-12 h-12 rounded-full bg-muted">
+                <IconSearch className="w-6 h-6 text-muted-foreground" />
               </div>
               <h3 className="mt-4 text-lg font-medium">No purchase orders found</h3>
               <p className="mt-2 text-sm text-muted-foreground">

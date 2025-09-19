@@ -137,9 +137,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a href="#" className="flex items-center gap-2">
-                <LayoutDashboard className="h-6 w-6" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+              <a href="#" className="flex gap-2 items-center">
+                <LayoutDashboard className="w-6 h-6" />
+                <span className="text-base font-semibold">Nudge</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -149,26 +149,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter className="flex flex-col gap-2">
-        <div className="w-full h-px bg-border my-1" />
+        <div className="my-1 w-full h-px bg-border" />
         <Button 
           variant="outline" 
           onClick={toggleTheme}
         >
           {theme === 'dark' ? (
             <>
-              <Sun className="mr-3 h-4 w-4" />
+              <Sun className="mr-3 w-4 h-4" />
               Light Mode
             </>
           ) : (
             <>
-              <Moon className="mr-3 h-4 w-4" />
+              <Moon className="mr-3 w-4 h-4" />
               Dark Mode
             </>
           )}
         </Button>
         <Button variant="default" asChild>
           <Link to="/smart-chat" className="flex items-center">
-            <MessageSquare className="mr-3 h-4 w-4" />
+            <MessageSquare className="mr-3 w-4 h-4" />
             AI Chat
           </Link>
         </Button>
