@@ -16,6 +16,7 @@ import {
 import { useDataStore } from '@/store/useDataStore';
 import { geminiService } from '@/services/gemini';
 import type { ChatMessage } from '@/types/chat';
+import { FormattedMessage } from '@/components/ui/formatted-message';
 
 const SmartChat = () => {
   const { openpos, pos, landingRates, universalPO } = useDataStore();
@@ -210,15 +211,19 @@ const SmartChat = () => {
 
                       {/* Message Content */}
                       <div
-                        className={`rounded-2xl px-4 py-2 ${
+                        className={`rounded-2xl px-4 py-3 ${
                           message.role === 'user'
                             ? 'bg-blue-500 text-white'
                             : 'bg-muted text-foreground'
                         }`}
                       >
-                        <div className="text-sm whitespace-pre-wrap">
-                          {message.content}
-                        </div>
+                        {message.role === 'assistant' ? (
+                          <FormattedMessage content={message.content} />
+                        ) : (
+                          <div className="text-sm whitespace-pre-wrap">
+                            {message.content}
+                          </div>
+                        )}
                         
                         {/* Message Actions */}
                         <div className="flex justify-between items-center mt-2 text-xs opacity-70">

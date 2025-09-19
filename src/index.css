@@ -194,4 +194,57 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground) / 0.5);
   }
+
+  /* Enhanced typography for chat messages */
+  .prose {
+    @apply text-sm leading-relaxed;
+  }
+  
+  .prose p {
+    @apply mb-3 last:mb-0;
+  }
+  
+  .prose strong {
+    @apply font-semibold text-foreground;
+  }
+  
+  .prose h1, .prose h2, .prose h3 {
+    @apply font-semibold text-foreground mb-2 mt-4 first:mt-0;
+  }
+  
+  .prose h1 {
+    @apply text-lg;
+  }
+  
+  .prose h2 {
+    @apply text-base;
+  }
+  
+  .prose h3 {
+    @apply text-sm;
+  }
+  
+  .prose ul, .prose ol {
+    @apply mb-4 ml-4 space-y-1;
+  }
+  
+  .prose ul {
+    @apply list-disc;
+  }
+  
+  .prose ol {
+    @apply list-decimal;
+  }
+  
+  .prose li {
+    @apply text-sm leading-relaxed;
+  }
+  
+  .prose code {
+    @apply px-1 py-0.5 bg-muted rounded text-xs font-mono;
+  }
+  
+  .prose blockquote {
+    @apply border-l-4 border-muted-foreground pl-4 italic text-muted-foreground my-4;
+  }
 }

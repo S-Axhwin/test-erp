@@ -73,7 +73,17 @@ Please provide a helpful response based on the available data and calculations. 
     if (lowerQuery.includes('vendor performance') || lowerQuery.includes('vendor summary')) {
       const summary = calculations.getVendorPerformanceSummary();
       return {
-        summary: `Vendor Performance Summary:\n- Total Vendors: ${summary.totalVendors}\n- Total Value: ₹${summary.totalValue.toLocaleString('en-IN')}\n- Average Fill Rate: ${summary.avgFillRate}%\n- Top Vendor: ${summary.topVendor}\n- Best Fill Rate: ${summary.bestFillRate}%`,
+        summary: `## Vendor Performance Summary
+
+### Key Metrics
+- **Total Vendors:** ${summary.totalVendors}
+- **Total Value:** ₹${summary.totalValue.toLocaleString('en-IN')}
+- **Average Fill Rate:** ${summary.avgFillRate}%
+- **Top Vendor:** ${summary.topVendor}
+- **Best Fill Rate:** ${summary.bestFillRate}%
+
+### Analysis
+Your vendor network consists of ${summary.totalVendors} active vendors with a total business value of ₹${summary.totalValue.toLocaleString('en-IN')}. The average fill rate of ${summary.avgFillRate}% indicates good supply chain performance. ${summary.topVendor} is your top-performing vendor by value.`,
         data: summary
       };
     }
@@ -140,9 +150,16 @@ Please provide a helpful response based on the available data and calculations. 
         // Default to landing rate for "best performing products"
         const topProductsByLandingRate = calculations.getBestPerformingProductsByLandingRate(5);
         return {
-          summary: `Top 5 Best Performing Products (by Landing Rate):\n${topProductsByLandingRate.map((p, i) => 
-            `${i + 1}. ${p.productName}: ₹${p.landingRate.toFixed(2)} landing rate\n   - Total Value: ₹${p.totalPoValue.toLocaleString('en-IN')}\n   - Orders: ${p.orderCount}\n   - Category: ${p.category}\n   - MRP: ₹${p.mrp.toLocaleString('en-IN')}`
-          ).join('\n\n')}`,
+          summary: `## Top 5 Best Performing Products (by Landing Rate)
+
+${topProductsByLandingRate.map((p, i) => 
+  `### ${i + 1}. ${p.productName}
+- **Landing Rate:** ₹${p.landingRate.toFixed(2)}
+- **Total Value:** ₹${p.totalPoValue.toLocaleString('en-IN')}
+- **Orders:** ${p.orderCount}
+- **Category:** ${p.category}
+- **MRP:** ₹${p.mrp.toLocaleString('en-IN')}`
+).join('\n\n')}`,
           data: topProductsByLandingRate
         };
       }
@@ -152,7 +169,18 @@ Please provide a helpful response based on the available data and calculations. 
     if (lowerQuery.includes('product performance') || lowerQuery.includes('product summary')) {
       const summary = calculations.getProductPerformanceSummary();
       return {
-        summary: `Product Performance Summary:\n- Total Products: ${summary.totalProducts}\n- Total Value: ₹${summary.totalValue.toLocaleString('en-IN')}\n- Average Landing Rate: ₹${summary.avgLandingRate.toFixed(2)}\n- Top Product: ${summary.topProduct}\n- Highest Landing Rate: ₹${summary.highestLandingRate.toFixed(2)}\n- Total Orders: ${summary.totalOrders}`,
+        summary: `## Product Performance Summary
+
+### Key Metrics
+- **Total Products:** ${summary.totalProducts}
+- **Total Value:** ₹${summary.totalValue.toLocaleString('en-IN')}
+- **Average Landing Rate:** ₹${summary.avgLandingRate.toFixed(2)}
+- **Top Product:** ${summary.topProduct}
+- **Highest Landing Rate:** ₹${summary.highestLandingRate.toFixed(2)}
+- **Total Orders:** ${summary.totalOrders}
+
+### Analysis
+Based on the available data from ${summary.totalProducts} unique products, your product portfolio shows strong performance with an average landing rate of ₹${summary.avgLandingRate.toFixed(2)}. The top-performing product "${summary.topProduct}" has the highest landing rate of ₹${summary.highestLandingRate.toFixed(2)}.`,
         data: summary
       };
     }
@@ -204,6 +232,13 @@ Your Role:
 6. Always format numbers with proper currency (₹) and use Indian number formatting
 7. Be concise but comprehensive in your responses
 8. Use the pre-calculated data when available to provide accurate insights
+9. Format responses using Markdown for better readability:
+   - Use ## for main headings
+   - Use ### for subheadings
+   - Use **bold** for important metrics
+   - Use bullet points (-) for lists
+   - Use proper line breaks for readability
+10. Structure responses with clear sections and proper spacing
 
 Example capabilities:
 - "Show me the top 5 vendors by PO value"
