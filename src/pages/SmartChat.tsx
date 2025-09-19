@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,8 @@ import {
   IconAlertCircle,
   IconRefresh,
   IconCopy,
-  IconCheck
+  IconCheck,
+  IconArrowLeft
 } from '@tabler/icons-react';
 import { useDataStore } from '@/store/useDataStore';
 import { geminiService } from '@/services/gemini';
@@ -19,6 +21,8 @@ import type { ChatMessage } from '@/types/chat';
 import { FormattedMessage } from '@/components/ui/formatted-message';
 
 const SmartChat = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { openpos, pos, landingRates, universalPO } = useDataStore();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -33,6 +37,60 @@ const SmartChat = () => {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Read initial message from query param and auto-send it
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const initial = params.get('message');
+    if (initial) {
+      // Immediately send the message without setting input value
+      const userMessage: ChatMessage = {
+        id: Date.now().toString(),
+        content: initial.trim(),
+        role: 'user',
+        timestamp: new Date()
+      };
+
+      setMessages([userMessage]);
+      setIsLoading(true);
+
+      const sendInitialMessage = async () => {
+        try {
+          const context = {
+            openPos: openpos,
+            pos: pos,
+            landingRates: landingRates,
+            universalPO: universalPO
+          };
+
+          const response = await geminiService.generateResponse(initial.trim(), context);
+          
+          const assistantMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            content: response,
+            role: 'assistant',
+            timestamp: new Date()
+          };
+
+          setMessages(prev => [...prev, assistantMessage]);
+        } catch (error) {
+          console.error('Error sending message:', error);
+          const errorMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            content: "I apologize, but I encountered an error processing your request. Please try again.",
+            role: 'assistant',
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMessage]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      sendInitialMessage();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -116,6 +174,19 @@ const SmartChat = () => {
 
   return (
     <div className="flex flex-col max-w-full h-screen">
+      {/* Header with Back Button */}
+      <div className="flex items-center p-4 border-b bg-background">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/ai-chatbot')}
+          className="mr-2"
+        >
+          <IconArrowLeft className="w-4 h-4 mr-1" />
+          Back
+        </Button>
+        <h1 className="text-lg font-semibold">Smart Chat</h1>
+      </div>
 
       {/* Chat Interface */}
       <Card className="flex flex-col flex-1 rounded-none border-0 shadow-none dark:bg-black">

@@ -167,7 +167,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           )}
         </Button>
         <Button variant="default" asChild>
-          <Link to="/smart-chat" className="flex items-center">
+          <Link to="/ai-chatbot" className="flex items-center">
             <MessageSquare className="mr-3 w-4 h-4" />
             AI Chat
           </Link>

@@ -118,8 +118,8 @@ export default function AIChatbot() {
     e.preventDefault();
     if (!inputValue.trim()) return;
     
-    // Navigate to conversation page with the message
-    navigate(`/conversation?message=${encodeURIComponent(inputValue)}`);
+    // Navigate to SmartChat page with the message
+    navigate(`/smart-chat?message=${encodeURIComponent(inputValue)}`);
   };
 
   const features = [
@@ -387,18 +387,7 @@ export default function AIChatbot() {
           <History className="h-5 w-5" />
         </Button>
 
-        {/* Gemini AI Button */}
-        <Button
-          className={cn(
-            "fixed bottom-6 right-20 rounded-full w-12 h-12 shadow-lg z-40",
-            "bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700",
-            "text-white transition-all duration-300 hover:scale-110"
-          )}
-          onClick={() => navigate('/conversation?ai=gemini')}
-          title="Chat with Gemini AI"
-        >
-          <Bot className="h-5 w-5" />
-        </Button>
+
       </div>
     </div>
   );

@@ -12,7 +12,6 @@ import VendorAnalytics from "./pages/VendorAnalytics"
 import VendorDetail from "./pages/VendorDetail"
 import ProfilePage from "./pages/Profile"
 import NotificationsPage from "./pages/Notifications"
-import AiChatPage from "./pages/AiChat"
 import Conversation from "./pages/Conversation"
 import SmartChat from "./pages/SmartChat"
 import CaseAnalytics from "./pages/CaseAnalytics"
@@ -33,8 +32,7 @@ export default function Page() {
                 <Route path="/pos" element={<Pos />} />
                 <Route path="/open-pos" element={<OpenPos />} />
                 <Route path="/platform" element={<PlatformComparison />} />
-                {/* <Route path="/ai-chatbot" element={<AIChatbot />} /> */}
-                {/* <Route path="/ai-chat" element={<AiChatPage />} /> */}
+                <Route path="/ai-chatbot" element={<AIChatbot />} />
                 <Route path="/smart-chat" element={<SmartChat />} />
                 <Route path="/sales-analytics" element={<Sales />}/>
                 <Route path="/conversation" element={<Conversation />} />
